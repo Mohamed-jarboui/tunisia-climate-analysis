@@ -1,0 +1,350 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Tunisia Climate Analysis: A Comparative Study",
+    "section": "",
+    "text": "This capstone project presents a comprehensive analysis of climate patterns across three Tunisian cities: Bizerte, Sousse, and Kef. Using hourly environmental sensor data, we investigate temperature trends, humidity patterns, wind characteristics, and solar radiation levels to understand regional climate variations and identify key meteorological patterns.\n\n\n\n\n\n\nNoteKey Findings\n\n\n\n\nTemperature variations reveal distinct climatic zones\nCoastal cities show higher humidity levels\nClear diurnal and seasonal patterns identified\nSolar radiation patterns differ significantly by location",
+    "crumbs": [
+      "Home",
+      "Project",
+      "Tunisia Climate Analysis: A Comparative Study"
+    ]
+  },
+  {
+    "objectID": "index.html#executive-summary",
+    "href": "index.html#executive-summary",
+    "title": "Tunisia Climate Analysis: A Comparative Study",
+    "section": "",
+    "text": "This capstone project presents a comprehensive analysis of climate patterns across three Tunisian cities: Bizerte, Sousse, and Kef. Using hourly environmental sensor data, we investigate temperature trends, humidity patterns, wind characteristics, and solar radiation levels to understand regional climate variations and identify key meteorological patterns.\n\n\n\n\n\n\nNoteKey Findings\n\n\n\n\nTemperature variations reveal distinct climatic zones\nCoastal cities show higher humidity levels\nClear diurnal and seasonal patterns identified\nSolar radiation patterns differ significantly by location",
+    "crumbs": [
+      "Home",
+      "Project",
+      "Tunisia Climate Analysis: A Comparative Study"
+    ]
+  },
+  {
+    "objectID": "index.html#introduction",
+    "href": "index.html#introduction",
+    "title": "Tunisia Climate Analysis: A Comparative Study",
+    "section": "1. Introduction",
+    "text": "1. Introduction\n\n1.1 Background\nClimate analysis is essential for understanding regional weather patterns, planning agricultural activities, and assessing environmental conditions. Tunisia’s diverse geography—from Mediterranean coastal regions to inland continental areas—creates varied climatic conditions that significantly impact local ecosystems and human activities.\n\n\n1.2 Research Objectives\nThis study aims to:\n\nAnalyze temperature patterns across three distinct Tunisian cities\nCompare humidity levels and their seasonal variations\nInvestigate wind characteristics and their relationship with other variables\nExamine solar radiation patterns and their implications\nIdentify key climate indicators for each location\n\n\n\n1.3 Study Locations\nOur analysis focuses on three cities representing different climatic regions:\n\nBizerte - Northern coastal city on the Mediterranean\nSousse - Eastern coastal city with tourist significance\nKef - Inland mountainous region in the northwest",
+    "crumbs": [
+      "Home",
+      "Project",
+      "Tunisia Climate Analysis: A Comparative Study"
+    ]
+  },
+  {
+    "objectID": "index.html#dataset-description",
+    "href": "index.html#dataset-description",
+    "title": "Tunisia Climate Analysis: A Comparative Study",
+    "section": "2. Dataset Description",
+    "text": "2. Dataset Description\n\n2.1 Data Source\nThe dataset originates from the Tunisian Open Data Portal (https://catalog.data.gov.tn), specifically from the “Capteur d’environnement de la station climatique” (Environmental Climate Station Sensors) program.\n\n\n2.2 Data Structure\n\n\nCode\n```{r data-overview}\n# Display data structure\ncat(\"Dataset Dimensions:\\n\")\ncat(sprintf(\"  Observations: %s\\n\", format(nrow(climate_data), big.mark = \",\")))\ncat(sprintf(\"  Variables: %d\\n\", ncol(climate_data)))\ncat(sprintf(\"  Cities: %d\\n\", n_distinct(climate_data$city)))\ncat(sprintf(\"  Date Range: %s to %s\\n\", \n            min(climate_data$date), \n            max(climate_data$date)))\n```\n\n\nDataset Dimensions:\n  Observations: 1,073\n  Variables: 17\n  Cities: 3\n  Date Range: NA to NA\n\n\n\n\n2.3 Variables\nThe dataset includes the following climate variables:\n\n\nCode\n```{r variable-table}\nvariables_df &lt;- tibble(\n  Variable = c(\"Temperature\", \"Relative Humidity\", \"Wind Speed\", \n               \"Wind Direction\", \"Dew Point\", \"Solar Radiation\"),\n  Unit = c(\"°C\", \"%\", \"m/s\", \"Degrees\", \"°C\", \"W/m²\"),\n  Description = c(\n    \"Ambient air temperature\",\n    \"Percentage of moisture in air\",\n    \"Wind velocity magnitude\",\n    \"Wind direction in degrees\",\n    \"Temperature at which dew forms\",\n    \"Incoming solar energy\"\n  )\n)\n\nvariables_df %&gt;%\n  gt() %&gt;%\n  tab_header(\n    title = \"Climate Variables\",\n    subtitle = \"Measured parameters from weather stations\"\n  ) %&gt;%\n  cols_label(\n    Variable = md(\"**Variable**\"),\n    Unit = md(\"**Unit**\"),\n    Description = md(\"**Description**\")\n  ) %&gt;%\n  opt_stylize(style = 6, color = \"blue\")\n```\n\n\n\n\n\n\n\n\nClimate Variables\n\n\nMeasured parameters from weather stations\n\n\nVariable\nUnit\nDescription\n\n\n\n\nTemperature\n°C\nAmbient air temperature\n\n\nRelative Humidity\n%\nPercentage of moisture in air\n\n\nWind Speed\nm/s\nWind velocity magnitude\n\n\nWind Direction\nDegrees\nWind direction in degrees\n\n\nDew Point\n°C\nTemperature at which dew forms\n\n\nSolar Radiation\nW/m²\nIncoming solar energy",
+    "crumbs": [
+      "Home",
+      "Project",
+      "Tunisia Climate Analysis: A Comparative Study"
+    ]
+  },
+  {
+    "objectID": "index.html#methodology",
+    "href": "index.html#methodology",
+    "title": "Tunisia Climate Analysis: A Comparative Study",
+    "section": "3. Methodology",
+    "text": "3. Methodology\n\n3.1 Data Collection\nData was collected from environmental sensors at three weather stations, recording hourly measurements throughout the study period.\n\n\n3.2 Data Processing Pipeline\n\n\n\nDATA PROCESSING WORKFLOW\n========================\n\n1. RAW DATA LOADING\n   ↓\n   • Load CSV files from three cities\n   • Combine into single dataset\n   ↓\n2. DATA CLEANING\n   ↓\n   • Parse datetime stamps\n   • Transform from long to wide format\n   • Handle missing values\n   • Validate data quality\n   ↓\n3. EXPLORATORY ANALYSIS\n   ↓\n   • Statistical summaries\n   • Correlation analysis\n   • Pattern identification\n   ↓\n4. VISUALIZATION\n   ↓\n   • Time series plots\n   • Distribution analysis\n   • Comparative visualizations\n   ↓\n5. INTERPRETATION & REPORTING\n\n\n\n\n3.3 Statistical Methods\nOur analysis employs:\n\nDescriptive statistics (mean, median, SD, quartiles)\nTime series analysis (trends, seasonality)\nCorrelation analysis (Pearson correlation)\nComparative analysis (ANOVA, distribution comparison)\nExtreme value analysis (min/max events)",
+    "crumbs": [
+      "Home",
+      "Project",
+      "Tunisia Climate Analysis: A Comparative Study"
+    ]
+  },
+  {
+    "objectID": "index.html#data-cleaning",
+    "href": "index.html#data-cleaning",
+    "title": "Tunisia Climate Analysis: A Comparative Study",
+    "section": "4. Data Cleaning",
+    "text": "4. Data Cleaning\n\n4.1 Data Quality Assessment\n\n\nCode\n```{r data-quality}\n# Missing values summary\nmissing_summary &lt;- climate_data %&gt;%\n  summarise(across(\n    c(temperature, humidity, wind_speed, dew_point, solar_radiation),\n    ~sum(is.na(.)),\n    .names = \"missing_{.col}\"\n  ))\n\n# Quality flags\nquality_summary &lt;- climate_data %&gt;%\n  count(quality_flag) %&gt;%\n  mutate(percentage = round(n / sum(n) * 100, 2))\n\nquality_summary %&gt;%\n  gt() %&gt;%\n  tab_header(title = \"Data Quality Flags\") %&gt;%\n  cols_label(\n    quality_flag = \"Quality Status\",\n    n = \"Count\",\n    percentage = \"Percentage (%)\"\n  ) %&gt;%\n  opt_stylize(style = 6, color = \"green\")\n```\n\n\n\n\n\n\n\n\nData Quality Flags\n\n\nQuality Status\nCount\nPercentage (%)\n\n\n\n\nok\n1073\n100\n\n\n\n\n\n\n\n\n\n4.2 Data Transformations\nKey transformations applied:\n\nDateTime parsing: Converted string timestamps to proper datetime objects\nWide format transformation: Pivoted from long to wide format for easier analysis\nFeature engineering: Created time-based features (hour, day, month, season)\nOutlier detection: Flagged unrealistic values for review",
+    "crumbs": [
+      "Home",
+      "Project",
+      "Tunisia Climate Analysis: A Comparative Study"
+    ]
+  },
+  {
+    "objectID": "index.html#exploratory-data-analysis",
+    "href": "index.html#exploratory-data-analysis",
+    "title": "Tunisia Climate Analysis: A Comparative Study",
+    "section": "5. Exploratory Data Analysis",
+    "text": "5. Exploratory Data Analysis\n\n5.1 Overall Statistics\n\n\nCode\n```{r overall-stats}\ncity_stats &lt;- eda_results$city_stats\n\ncity_stats %&gt;%\n  select(city, avg_temp, temp_range, avg_humidity, avg_wind, avg_solar) %&gt;%\n  gt() %&gt;%\n  tab_header(\n    title = \"Climate Statistics by City\",\n    subtitle = \"Summary of key meteorological variables\"\n  ) %&gt;%\n  cols_label(\n    city = \"City\",\n    avg_temp = \"Avg Temp (°C)\",\n    temp_range = \"Temp Range (°C)\",\n    avg_humidity = \"Avg Humidity (%)\",\n    avg_wind = \"Avg Wind (m/s)\",\n    avg_solar = \"Avg Solar (W/m²)\"\n  ) %&gt;%\n  fmt_number(decimals = 2) %&gt;%\n  data_color(\n    columns = avg_temp,\n    palette = \"RdYlBu\",\n    reverse = TRUE\n  ) %&gt;%\n  opt_stylize(style = 6, color = \"cyan\")\n```\n\n\n\n\n\n\n\n\nClimate Statistics by City\n\n\nSummary of key meteorological variables\n\n\nCity\nAvg Temp (°C)\nTemp Range (°C)\nAvg Humidity (%)\nAvg Wind (m/s)\nAvg Solar (W/m²)\n\n\n\n\nBizerte\n14.74\n13.90\n90.32\n1.61\n82.05\n\n\nSousse\n14.37\n16.50\n74.82\n1.19\n96.28\n\n\nKef\n10.59\n19.00\n79.58\n2.07\n953.30\n\n\n\n\n\n\n\n\n\n5.2 Temperature Analysis\n\n\nCode\n```{r temp-comparison, fig.cap=\"Temperature distribution comparison across cities\", fig.width=10, fig.height=6}\nknitr::include_graphics(here(\"output\", \"figures\", \"01_temperature_comparison.png\"))\n```\n\n\n\n\n\nTemperature distribution comparison across cities\n\n\n\n\nKey Observations:\n\nClear temperature differences between coastal and inland cities\nWider temperature ranges in inland locations\nCoastal cities show more stable temperature profiles\n\n\n\n5.3 Temporal Trends\n\n\nCode\n```{r temp-trends, fig.cap=\"Daily temperature trends over time\", fig.width=12, fig.height=6}\nknitr::include_graphics(here(\"output\", \"figures\", \"02_temperature_trends.png\"))\n```\n\n\n\n\n\nDaily temperature trends over time",
+    "crumbs": [
+      "Home",
+      "Project",
+      "Tunisia Climate Analysis: A Comparative Study"
+    ]
+  },
+  {
+    "objectID": "index.html#visualizations",
+    "href": "index.html#visualizations",
+    "title": "Tunisia Climate Analysis: A Comparative Study",
+    "section": "6. Visualizations",
+    "text": "6. Visualizations\n\n6.1 Seasonal Patterns\n\n\nCode\n```{r seasonal-patterns, fig.cap=\"Seasonal temperature patterns\", fig.width=10, fig.height=6}\nknitr::include_graphics(here(\"output\", \"figures\", \"03_seasonal_temperature.png\"))\n```\n\n\n\n\n\nSeasonal temperature patterns\n\n\n\n\n\n\n6.2 Humidity Analysis\n\n\nCode\n```{r humidity-dist, fig.cap=\"Humidity distribution across cities\", fig.width=10, fig.height=6}\nknitr::include_graphics(here(\"output\", \"figures\", \"04_humidity_distribution.png\"))\n```\n\n\n\n\n\nHumidity distribution across cities\n\n\n\n\nInsights:\n\nCoastal cities (Bizerte, Sousse) exhibit higher humidity levels\nKef shows lower average humidity due to inland location\nBimodal distributions suggest distinct weather patterns\n\n\n\n6.3 Diurnal Cycle\n\n\nCode\n```{r diurnal-cycle, fig.cap=\"24-hour temperature cycle\", fig.width=12, fig.height=6}\nknitr::include_graphics(here(\"output\", \"figures\", \"05_diurnal_cycle.png\"))\n```\n\n\n\n\n\n24-hour temperature cycle\n\n\n\n\n\n\n6.4 Temperature-Humidity Relationship\n\n\nCode\n```{r temp-humidity, fig.cap=\"Temperature vs Humidity relationship\", fig.width=10, fig.height=6}\nknitr::include_graphics(here(\"output\", \"figures\", \"06_temp_humidity_scatter.png\"))\n```\n\n\n\n\n\nTemperature vs Humidity relationship\n\n\n\n\nCorrelation Analysis:\n\n\nCode\n```{r correlation-table}\neda_results$correlations %&gt;%\n  gt() %&gt;%\n  tab_header(\n    title = \"Correlation Coefficients\",\n    subtitle = \"Relationship between climate variables\"\n  ) %&gt;%\n  fmt_number(decimals = 3) %&gt;%\n  data_color(\n    columns = -city,\n    palette = \"RdBu\",\n    domain = c(-1, 1)\n  ) %&gt;%\n  opt_stylize(style = 6, color = \"gray\")\n```\n\n\n\n\n\n\n\n\nCorrelation Coefficients\n\n\nRelationship between climate variables\n\n\ncity\ntemp_humidity_cor\ntemp_solar_cor\nhumidity_solar_cor\ntemp_wind_cor\n\n\n\n\nBizerte\n−0.766\n0.456\n−0.407\n0.445\n\n\nKef\n−0.865\n−0.229\n0.180\n0.484\n\n\nSousse\n−0.465\n0.533\n−0.446\n0.328\n\n\n\n\n\n\n\n\n\n6.5 Wind Analysis\n\n\nCode\n```{r wind-speed, fig.cap=\"Wind speed distribution\", fig.width=10, fig.height=6}\nknitr::include_graphics(here(\"output\", \"figures\", \"07_wind_speed.png\"))\n```\n\n\n\n\n\nWind speed distribution\n\n\n\n\n\n\n6.6 Solar Radiation Patterns\n\n\nCode\n```{r solar-radiation, fig.cap=\"Daily solar radiation patterns\", fig.width=12, fig.height=6}\nknitr::include_graphics(here(\"output\", \"figures\", \"08_solar_radiation.png\"))\n```\n\n\n\n\n\nDaily solar radiation patterns",
+    "crumbs": [
+      "Home",
+      "Project",
+      "Tunisia Climate Analysis: A Comparative Study"
+    ]
+  },
+  {
+    "objectID": "index.html#key-performance-indicators-kpis",
+    "href": "index.html#key-performance-indicators-kpis",
+    "title": "Tunisia Climate Analysis: A Comparative Study",
+    "section": "7. Key Performance Indicators (KPIs)",
+    "text": "7. Key Performance Indicators (KPIs)\n\n7.1 Climate Comfort Metrics\n\n\nCode\n```{r kpi-table}\nkpis &lt;- eda_results$kpis\n\nkpis %&gt;%\n  select(city, heat_days, comfortable_days, high_humidity_hours, \n         windy_hours, avg_comfort_index) %&gt;%\n  gt() %&gt;%\n  tab_header(\n    title = \"Climate Comfort KPIs\",\n    subtitle = \"Key performance indicators by city\"\n  ) %&gt;%\n  cols_label(\n    city = \"City\",\n    heat_days = \"Heat Days (&gt;35°C)\",\n    comfortable_days = \"Comfortable Days\",\n    high_humidity_hours = \"High Humidity Hours\",\n    windy_hours = \"Windy Hours\",\n    avg_comfort_index = \"Comfort Index (%)\"\n  ) %&gt;%\n  fmt_number(\n    columns = avg_comfort_index,\n    decimals = 1\n  ) %&gt;%\n  data_color(\n    columns = avg_comfort_index,\n    palette = \"Greens\"\n  ) %&gt;%\n  opt_stylize(style = 6, color = \"blue\")\n```\n\n\n\n\n\n\n\n\nClimate Comfort KPIs\n\n\nKey performance indicators by city\n\n\nCity\nHeat Days (&gt;35°C)\nComfortable Days\nHigh Humidity Hours\nWindy Hours\nComfort Index (%)\n\n\n\n\nBizerte\n0\n24\n132\n2\n6.0\n\n\nKef\n0\n9\n154\n0\n3.4\n\n\nSousse\n0\n110\n261\n0\n10.5\n\n\n\n\n\n\n\n\n\n7.2 KPI Visualization\n\n\nCode\n```{r kpi-dashboard, fig.cap=\"KPI Dashboard\", fig.width=12, fig.height=8}\nknitr::include_graphics(here(\"output\", \"figures\", \"10_kpi_dashboard.png\"))\n```\n\n\n\n\n\nKPI Dashboard\n\n\n\n\n\n\n7.3 Extreme Events\n\n\nCode\n```{r extreme-events}\neda_results$extreme_events %&gt;%\n  select(city, hottest_temp, hottest_date, coldest_temp, coldest_date) %&gt;%\n  gt() %&gt;%\n  tab_header(\n    title = \"Extreme Weather Events\",\n    subtitle = \"Record temperatures by city\"\n  ) %&gt;%\n  cols_label(\n    city = \"City\",\n    hottest_temp = \"Hottest (°C)\",\n    hottest_date = \"Date\",\n    coldest_temp = \"Coldest (°C)\",\n    coldest_date = \"Date\"\n  ) %&gt;%\n  fmt_number(\n    columns = c(hottest_temp, coldest_temp),\n    decimals = 1\n  ) %&gt;%\n  opt_stylize(style = 6, color = \"red\")\n```\n\n\n\n\n\n\n\n\nExtreme Weather Events\n\n\nRecord temperatures by city\n\n\nCity\nHottest (°C)\nDate\nColdest (°C)\nDate\n\n\n\n\nBizerte\n22.3\n2025-12-16\n8.4\n2025-12-10\n\n\nKef\n19.5\n2025-12-10\n0.5\n2025-12-11\n\n\nSousse\n22.9\n2026-01-03\n6.4\n2025-12-10",
+    "crumbs": [
+      "Home",
+      "Project",
+      "Tunisia Climate Analysis: A Comparative Study"
+    ]
+  },
+  {
+    "objectID": "index.html#interpretation",
+    "href": "index.html#interpretation",
+    "title": "Tunisia Climate Analysis: A Comparative Study",
+    "section": "8. Interpretation",
+    "text": "8. Interpretation\n\n8.1 Geographic Influences\nThe analysis reveals strong geographic influences on climate patterns:\n\nCoastal Effect: Bizerte and Sousse exhibit maritime climate characteristics with higher humidity and more moderate temperatures\nAltitude Impact: Kef’s inland and elevated position results in greater temperature variability and lower humidity\nMediterranean Influence: All locations show typical Mediterranean seasonal patterns\n\n\n\n8.2 Seasonal Variations\n\n\nCode\n```{r seasonal-summary}\neda_results$seasonal_stats %&gt;%\n  gt() %&gt;%\n  tab_header(title = \"Seasonal Climate Summary\") %&gt;%\n  fmt_number(decimals = 1) %&gt;%\n  opt_stylize(style = 6, color = \"blue\")\n```\n\n\n\n\n\n\n\n\nSeasonal Climate Summary\n\n\nseason\ncity\navg_temp\navg_humidity\navg_wind\n\n\n\n\nWinter\nBizerte\n14.7\n90.3\n1.6\n\n\nWinter\nKef\n10.6\n79.5\n2.1\n\n\nNA\nKef\n8.2\n88.1\n1.7\n\n\nWinter\nSousse\n14.4\n74.8\n1.2\n\n\nNA\nSousse\n12.6\n81.4\n1.0\n\n\n\n\n\n\n\n\n\n8.3 Practical Implications\nFor Agriculture: - Temperature ranges indicate suitable growing seasons - Humidity patterns affect irrigation needs - Wind patterns influence crop selection\nFor Tourism: - Comfortable temperature periods identified - Seasonal patterns guide tourism planning - Solar radiation data useful for outdoor activities\nFor Energy: - Solar radiation patterns inform renewable energy potential - Wind speed data relevant for wind energy assessment",
+    "crumbs": [
+      "Home",
+      "Project",
+      "Tunisia Climate Analysis: A Comparative Study"
+    ]
+  },
+  {
+    "objectID": "index.html#conclusions",
+    "href": "index.html#conclusions",
+    "title": "Tunisia Climate Analysis: A Comparative Study",
+    "section": "9. Conclusions",
+    "text": "9. Conclusions\n\n9.1 Summary of Findings\n\nTemperature Patterns\n\nClear temperature gradients from coast to inland\nSeasonal variations follow Mediterranean patterns\nDiurnal cycles show consistent patterns across cities\n\nHumidity Analysis\n\nCoastal cities maintain higher humidity levels\nInverse relationship with temperature observed\nSeasonal humidity variations identified\n\nWind Characteristics\n\nVariable wind patterns across locations\nCoastal areas experience different wind regimes\nClear temporal patterns in wind speed\n\nSolar Radiation\n\nConsistent diurnal patterns across all cities\nSeasonal variations in solar intensity\nMinimal inter-city differences in solar patterns\n\n\n\n\n9.2 Study Limitations\n\nData limited to specific time period\nSensor accuracy not independently verified\nSome missing data points in certain periods\nLimited to three locations\n\n\n\n9.3 Future Research Directions\n\nExtend analysis to include more cities\nIncorporate longer time series for trend analysis\nAdd climate change impact assessment\nDevelop predictive models for forecasting",
+    "crumbs": [
+      "Home",
+      "Project",
+      "Tunisia Climate Analysis: A Comparative Study"
+    ]
+  },
+  {
+    "objectID": "index.html#references",
+    "href": "index.html#references",
+    "title": "Tunisia Climate Analysis: A Comparative Study",
+    "section": "10. References",
+    "text": "10. References\n\nTunisia Open Data Portal. (2025). Environmental Climate Station Sensors. Retrieved from https://catalog.data.gov.tn\nWorld Meteorological Organization. (2024). Guide to Meteorological Instruments and Methods of Observation.\nWickham, H., et al. (2019). Welcome to the Tidyverse. Journal of Open Source Software, 4(43), 1686.",
+    "crumbs": [
+      "Home",
+      "Project",
+      "Tunisia Climate Analysis: A Comparative Study"
+    ]
+  },
+  {
+    "objectID": "index.html#appendix-technical-details",
+    "href": "index.html#appendix-technical-details",
+    "title": "Tunisia Climate Analysis: A Comparative Study",
+    "section": "Appendix: Technical Details",
+    "text": "Appendix: Technical Details\n\nSoftware Environment\n\n\nCode\n```{r session-info}\nsessionInfo()\n```\n\n\nR version 4.5.2 (2025-10-31 ucrt)\nPlatform: x86_64-w64-mingw32/x64\nRunning under: Windows 11 x64 (build 26200)\n\nMatrix products: default\n  LAPACK version 3.12.1\n\nlocale:\n[1] LC_COLLATE=English_United States.utf8 \n[2] LC_CTYPE=English_United States.utf8   \n[3] LC_MONETARY=English_United States.utf8\n[4] LC_NUMERIC=C                          \n[5] LC_TIME=English_United States.utf8    \n\ntime zone: Africa/Lagos\ntzcode source: internal\n\nattached base packages:\n[1] stats     graphics  grDevices utils     datasets  methods   base     \n\nother attached packages:\n [1] knitr_1.50      patchwork_1.3.2 scales_1.4.0    gt_1.2.0       \n [5] here_1.0.2      lubridate_1.9.4 forcats_1.0.1   stringr_1.6.0  \n [9] dplyr_1.1.4     purrr_1.2.0     readr_2.1.6     tidyr_1.3.2    \n[13] tibble_3.3.0    ggplot2_4.0.1   tidyverse_2.0.0\n\nloaded via a namespace (and not attached):\n [1] sass_0.4.10        generics_0.1.4     xml2_1.4.1         stringi_1.8.7     \n [5] hms_1.1.4          digest_0.6.38      magrittr_2.0.4     evaluate_1.0.5    \n [9] grid_4.5.2         timechange_0.3.0   RColorBrewer_1.1-3 fastmap_1.2.0     \n[13] rprojroot_2.1.1    jsonlite_2.0.0     cli_3.6.5          rlang_1.1.6       \n[17] litedown_0.9       commonmark_2.0.0   base64enc_0.1-3    withr_3.0.2       \n[21] yaml_2.3.10        tools_4.5.2        tzdb_0.5.0         png_0.1-8         \n[25] vctrs_0.6.5        R6_2.6.1           lifecycle_1.0.4    fs_1.6.6          \n[29] htmlwidgets_1.6.4  pkgconfig_2.0.3    pillar_1.11.1      gtable_0.3.6      \n[33] glue_1.8.0         xfun_0.55          tidyselect_1.2.1   rstudioapi_0.17.1 \n[37] farver_2.1.2       htmltools_0.5.8.1  rmarkdown_2.30     compiler_4.5.2    \n[41] S7_0.2.1           markdown_2.0      \n\n\n\n\nReproducibility\nAll analysis code is available in the project repository. To reproduce this analysis:\n# 1. Clone the repository\ngit clone [repository-url]\n\n# 2. Install dependencies\nRscript -e \"install.packages(c('tidyverse', 'lubridate', 'here', 'gt', 'patchwork'))\"\n\n# 3. Run analysis scripts\nRscript scripts/01_data_loading.R\nRscript scripts/02_data_cleaning.R\nRscript scripts/03_eda.R\nRscript scripts/04_visualizations.R\n\n# 4. Render report\nquarto render index.qmd\n\n\n\n\n\n\n\nTipProject Repository\n\n\n\nComplete code and data available at: [GitHub Repository Link]",
+    "crumbs": [
+      "Home",
+      "Project",
+      "Tunisia Climate Analysis: A Comparative Study"
+    ]
+  },
+  {
+    "objectID": "visualizations.html",
+    "href": "visualizations.html",
+    "title": "Visualization Gallery",
+    "section": "",
+    "text": "Browse through all the visualizations created for this analysis.\n\n\n\nDistributionTrendsSeasonal\n\n\n\n\n\nTemperature Distribution\n\n\n\n\n\n\n\nTemperature Trends\n\n\n\n\n\n\n\nSeasonal Patterns\n\n\n\n\n\n\n\n\n\n\n\nHumidity Distribution\n\n\n\n\n\n\nDaily CycleMonthly Heatmap\n\n\n\n\n\nDiurnal Cycle\n\n\n\n\n\n\n\nMonthly Patterns\n\n\n\n\n\n\n\n\n\n\n\nTemperature vs Humidity\n\n\n\n\n\n\n\n\nWind Speed Distribution\n\n\n\n\n\n\n\n\nSolar Radiation Patterns\n\n\n\n\n\n\nKPI DashboardComprehensive\n\n\n\n\n\nKPI Dashboard\n\n\n\n\n\n\n\nComprehensive Dashboard",
+    "crumbs": [
+      "Home",
+      "Project",
+      "Visualization Gallery"
+    ]
+  },
+  {
+    "objectID": "visualizations.html#all-visualizations",
+    "href": "visualizations.html#all-visualizations",
+    "title": "Visualization Gallery",
+    "section": "",
+    "text": "Browse through all the visualizations created for this analysis.\n\n\n\nDistributionTrendsSeasonal\n\n\n\n\n\nTemperature Distribution\n\n\n\n\n\n\n\nTemperature Trends\n\n\n\n\n\n\n\nSeasonal Patterns\n\n\n\n\n\n\n\n\n\n\n\nHumidity Distribution\n\n\n\n\n\n\nDaily CycleMonthly Heatmap\n\n\n\n\n\nDiurnal Cycle\n\n\n\n\n\n\n\nMonthly Patterns\n\n\n\n\n\n\n\n\n\n\n\nTemperature vs Humidity\n\n\n\n\n\n\n\n\nWind Speed Distribution\n\n\n\n\n\n\n\n\nSolar Radiation Patterns\n\n\n\n\n\n\nKPI DashboardComprehensive\n\n\n\n\n\nKPI Dashboard\n\n\n\n\n\n\n\nComprehensive Dashboard",
+    "crumbs": [
+      "Home",
+      "Project",
+      "Visualization Gallery"
+    ]
+  },
+  {
+    "objectID": "visualizations.html#download-figures",
+    "href": "visualizations.html#download-figures",
+    "title": "Visualization Gallery",
+    "section": "Download Figures",
+    "text": "Download Figures\nAll figures are available in high resolution (300 DPI) in the output/figures/ directory.",
+    "crumbs": [
+      "Home",
+      "Project",
+      "Visualization Gallery"
+    ]
+  },
+  {
+    "objectID": "analysis.html",
+    "href": "analysis.html",
+    "title": "Detailed Statistical Analysis",
+    "section": "",
+    "text": "Code\n```{r monthly-heatmap, fig.width=12, fig.height=6}\nknitr::include_graphics(here(\"output\", \"figures\", \"09_monthly_heatmap.png\"))\n```\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nCode\n```{r dashboard, fig.width=14, fig.height=10}\nknitr::include_graphics(here(\"output\", \"figures\", \"11_comprehensive_dashboard.png\"))\n```",
+    "crumbs": [
+      "Home",
+      "Project",
+      "Detailed Statistical Analysis"
+    ]
+  },
+  {
+    "objectID": "analysis.html#monthly-trends-analysis",
+    "href": "analysis.html#monthly-trends-analysis",
+    "title": "Detailed Statistical Analysis",
+    "section": "",
+    "text": "Code\n```{r monthly-heatmap, fig.width=12, fig.height=6}\nknitr::include_graphics(here(\"output\", \"figures\", \"09_monthly_heatmap.png\"))\n```\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nCode\n```{r dashboard, fig.width=14, fig.height=10}\nknitr::include_graphics(here(\"output\", \"figures\", \"11_comprehensive_dashboard.png\"))\n```",
+    "crumbs": [
+      "Home",
+      "Project",
+      "Detailed Statistical Analysis"
+    ]
+  },
+  {
+    "objectID": "analysis.html#statistical-tests",
+    "href": "analysis.html#statistical-tests",
+    "title": "Detailed Statistical Analysis",
+    "section": "Statistical Tests",
+    "text": "Statistical Tests\n\nTemperature Variability\n\n\nCode\n```{r temp-variability}\neda_results$temp_variability %&gt;%\n  gt() %&gt;%\n  tab_header(\n    title = \"Daily Temperature Variability\",\n    subtitle = \"Range and standard deviation by city\"\n  ) %&gt;%\n  fmt_number(decimals = 2) %&gt;%\n  opt_stylize(style = 6, color = \"blue\")\n```\n\n\n\n\n\n\n\n\nDaily Temperature Variability\n\n\nRange and standard deviation by city\n\n\ncity\navg_daily_range\nmax_daily_range\nsd_daily_range\n\n\n\n\nBizerte\n7.69\n11.10\n3.28\n\n\nKef\n10.44\n18.20\n5.92\n\n\nSousse\n7.90\n12.50\n2.89\n\n\n\n\n\n\n\n\n\nHourly Patterns\n\n\nCode\n```{r hourly-patterns}\nhead(eda_results$hourly_patterns, 24) %&gt;%\n  gt() %&gt;%\n  tab_header(title = \"Average Hourly Climate Patterns\") %&gt;%\n  fmt_number(decimals = 2) %&gt;%\n  opt_stylize(style = 6, color = \"cyan\")\n```\n\n\n\n\n\n\n\n\nAverage Hourly Climate Patterns\n\n\ncity\nhour\navg_temp\navg_humidity\navg_solar\n\n\n\n\nBizerte\n0.00\n12.50\n100.00\n0.00\n\n\nBizerte\n1.00\n13.32\n95.67\n0.08\n\n\nBizerte\n2.00\n13.15\n99.10\n0.00\n\n\nBizerte\n3.00\n12.95\n96.24\n0.00\n\n\nBizerte\n4.00\n9.30\n100.00\n0.00\n\n\nBizerte\n5.00\n12.77\n96.95\n0.08\n\n\nBizerte\n6.00\n9.60\n100.00\n0.00\n\n\nBizerte\n7.00\n12.23\n97.32\n0.00\n\n\nBizerte\n8.00\n10.27\n100.00\n26.33\n\n\nBizerte\n9.00\n13.42\n96.08\n143.33\n\n\nBizerte\n10.00\n14.50\n96.30\n137.00\n\n\nBizerte\n11.00\n16.11\n86.66\n306.00\n\n\nBizerte\n12.00\n16.35\n87.75\n241.50\n\n\nBizerte\n13.00\n18.35\n76.87\n358.75\n\n\nBizerte\n14.00\n18.25\n82.90\n411.50\n\n\nBizerte\n15.00\n19.36\n67.78\n203.00\n\n\nBizerte\n16.00\n17.70\n78.80\n93.00\n\n\nBizerte\n17.00\n16.88\n81.08\n2.83\n\n\nBizerte\n18.00\n14.93\n92.40\n0.00\n\n\nBizerte\n19.00\n15.41\n89.43\n0.08\n\n\nBizerte\n20.00\n15.10\n90.60\n0.00\n\n\nBizerte\n21.00\n14.49\n94.76\n0.00\n\n\nBizerte\n22.00\n14.20\n100.00\n0.00\n\n\nBizerte\n23.00\n13.86\n97.04\n0.00",
+    "crumbs": [
+      "Home",
+      "Project",
+      "Detailed Statistical Analysis"
+    ]
+  },
+  {
+    "objectID": "analysis.html#interactive-data-exploration",
+    "href": "analysis.html#interactive-data-exploration",
+    "title": "Detailed Statistical Analysis",
+    "section": "Interactive Data Exploration",
+    "text": "Interactive Data Exploration\n\n\nCode\n```{r interactive-summary}\n# Summary by city and season\nclimate_data %&gt;%\n  group_by(city, season) %&gt;%\n  summarise(\n    n = n(),\n    avg_temp = round(mean(temperature, na.rm = TRUE), 2),\n    sd_temp = round(sd(temperature, na.rm = TRUE), 2),\n    avg_humidity = round(mean(humidity, na.rm = TRUE), 2),\n    avg_wind = round(mean(wind_speed, na.rm = TRUE), 2),\n    .groups = \"drop\"\n  ) %&gt;%\n  gt() %&gt;%\n  tab_header(title = \"Climate Summary by City and Season\") %&gt;%\n  opt_stylize(style = 6, color = \"green\")\n```\n\n\n\n\n\n\n\n\nClimate Summary by City and Season\n\n\ncity\nseason\nn\navg_temp\nsd_temp\navg_humidity\navg_wind\n\n\n\n\nBizerte\nWinter\n168\n14.74\n2.97\n90.32\n1.61\n\n\nKef\nWinter\n268\n10.60\n4.56\n79.55\n2.08\n\n\nKef\nNA\n1\n8.24\nNA\n88.13\n1.70\n\n\nSousse\nWinter\n635\n14.38\n3.45\n74.81\n1.19\n\n\nSousse\nNA\n1\n12.60\nNA\n81.39\n0.98",
+    "crumbs": [
+      "Home",
+      "Project",
+      "Detailed Statistical Analysis"
+    ]
+  },
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About This Project",
+    "section": "",
+    "text": "This capstone project was completed as part of a university R programming and data science course. The project demonstrates proficiency in:\n\nData manipulation and cleaning\nStatistical analysis\nData visualization\nReproducible research practices\nTechnical documentation",
+    "crumbs": [
+      "Home",
+      "Resources",
+      "About This Project"
+    ]
+  },
+  {
+    "objectID": "about.html#project-overview",
+    "href": "about.html#project-overview",
+    "title": "About This Project",
+    "section": "",
+    "text": "This capstone project was completed as part of a university R programming and data science course. The project demonstrates proficiency in:\n\nData manipulation and cleaning\nStatistical analysis\nData visualization\nReproducible research practices\nTechnical documentation",
+    "crumbs": [
+      "Home",
+      "Resources",
+      "About This Project"
+    ]
+  },
+  {
+    "objectID": "about.html#methodology",
+    "href": "about.html#methodology",
+    "title": "About This Project",
+    "section": "Methodology",
+    "text": "Methodology\n\nData Science Pipeline\ngraph LR\n    A[Raw Data] --&gt; B[Data Loading]\n    B --&gt; C[Data Cleaning]\n    C --&gt; D[EDA]\n    D --&gt; E[Visualization]\n    E --&gt; F[Interpretation]\n    F --&gt; G[Reporting]\n\n\nTechnologies Used\n\nR: Statistical computing and graphics\ntidyverse: Data manipulation and visualization\nQuarto: Reproducible reporting\nGit: Version control\nVercel: Website deployment",
+    "crumbs": [
+      "Home",
+      "Resources",
+      "About This Project"
+    ]
+  },
+  {
+    "objectID": "about.html#data-source",
+    "href": "about.html#data-source",
+    "title": "About This Project",
+    "section": "Data Source",
+    "text": "Data Source\nTunisia Open Data Portal\nWebsite: https://catalog.data.gov.tn\nDataset: Capteur d’environnement de la station climatique",
+    "crumbs": [
+      "Home",
+      "Resources",
+      "About This Project"
+    ]
+  },
+  {
+    "objectID": "about.html#contact",
+    "href": "about.html#contact",
+    "title": "About This Project",
+    "section": "Contact",
+    "text": "Contact\nStudent: Your Name\nInstitution: Your University\nProgram: Data Science / Statistics\nYear: 2025-2026",
+    "crumbs": [
+      "Home",
+      "Resources",
+      "About This Project"
+    ]
+  },
+  {
+    "objectID": "about.html#acknowledgments",
+    "href": "about.html#acknowledgments",
+    "title": "About This Project",
+    "section": "Acknowledgments",
+    "text": "Acknowledgments\n\nTunisia Open Data Initiative for providing public climate data\nCourse instructors and mentors\nR and Quarto development communities",
+    "crumbs": [
+      "Home",
+      "Resources",
+      "About This Project"
+    ]
+  },
+  {
+    "objectID": "about.html#license",
+    "href": "about.html#license",
+    "title": "About This Project",
+    "section": "License",
+    "text": "License\nThis project is submitted for academic purposes. The data is publicly available under Tunisia’s Open Data license.",
+    "crumbs": [
+      "Home",
+      "Resources",
+      "About This Project"
+    ]
+  },
+  {
+    "objectID": "about.html#repository",
+    "href": "about.html#repository",
+    "title": "About This Project",
+    "section": "Repository",
+    "text": "Repository\nThe complete source code, analysis scripts, and documentation are available on GitHub:\n[GitHub Repository Link]",
+    "crumbs": [
+      "Home",
+      "Resources",
+      "About This Project"
+    ]
+  },
+  {
+    "objectID": "about.html#reproducibility-statement",
+    "href": "about.html#reproducibility-statement",
+    "title": "About This Project",
+    "section": "Reproducibility Statement",
+    "text": "Reproducibility Statement\nThis entire analysis is reproducible. All code, data processing steps, and visualizations can be regenerated by:\n\nCloning the repository\nInstalling required R packages\nRunning the analysis scripts in order\nRendering the Quarto website\n\nFor detailed instructions, see the README.md in the project repository.",
+    "crumbs": [
+      "Home",
+      "Resources",
+      "About This Project"
+    ]
+  }
+]

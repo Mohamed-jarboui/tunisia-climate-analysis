@@ -1,0 +1,4 @@
+city,n_obs,avg_temp,min_temp,max_temp,temp_range,avg_humidity,min_humidity,max_humidity,avg_wind,max_wind,avg_solar,max_solar
+Bizerte,168,14.74,8.4,22.3,13.9,90.32,41.7,100,1.61,12.44,82.05,511
+Sousse,636,14.37,6.4,22.9,16.5,74.82,28.9,100,1.19,6.31,96.28,488
+Kef,269,10.59,0.5,19.5,19,79.58,38.3,100,2.07,7.8,953.3,957.5

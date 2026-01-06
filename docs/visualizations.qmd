@@ -1,0 +1,66 @@
+---
+title: "Visualization Gallery"
+---
+
+## All Visualizations
+
+Browse through all the visualizations created for this analysis.
+
+### Temperature Analysis
+
+::: {.panel-tabset}
+
+#### Distribution
+![Temperature Distribution](output/figures/01_temperature_comparison.png)
+
+#### Trends
+![Temperature Trends](output/figures/02_temperature_trends.png)
+
+#### Seasonal
+![Seasonal Patterns](output/figures/03_seasonal_temperature.png)
+
+:::
+
+### Humidity Analysis
+
+![Humidity Distribution](output/figures/04_humidity_distribution.png)
+
+### Temporal Patterns
+
+::: {.panel-tabset}
+
+#### Daily Cycle
+![Diurnal Cycle](output/figures/05_diurnal_cycle.png)
+
+#### Monthly Heatmap
+![Monthly Patterns](output/figures/09_monthly_heatmap.png)
+
+:::
+
+### Multivariate Analysis
+
+![Temperature vs Humidity](output/figures/06_temp_humidity_scatter.png)
+
+### Wind Analysis
+
+![Wind Speed Distribution](output/figures/07_wind_speed.png)
+
+### Solar Radiation
+
+![Solar Radiation Patterns](output/figures/08_solar_radiation.png)
+
+### Dashboards
+
+::: {.panel-tabset}
+
+#### KPI Dashboard
+![KPI Dashboard](output/figures/10_kpi_dashboard.png)
+
+#### Comprehensive
+![Comprehensive Dashboard](output/figures/11_comprehensive_dashboard.png)
+
+:::
+
+## Download Figures
+
+All figures are available in high resolution (300 DPI) in the `output/figures/` directory.

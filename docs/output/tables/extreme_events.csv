@@ -1,0 +1,4 @@
+city,hottest_temp,hottest_date,coldest_temp,coldest_date,strongest_wind,strongest_wind_date,highest_solar
+Bizerte,22.3,2025-12-16,8.4,2025-12-10,12.44,2025-12-07,511
+Kef,19.5,2025-12-10,0.5,2025-12-11,7.8,2025-12-15,957.5
+Sousse,22.9,2026-01-03,6.4,2025-12-10,6.31,2025-12-07,488

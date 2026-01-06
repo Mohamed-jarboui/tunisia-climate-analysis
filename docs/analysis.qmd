@@ -1,0 +1,71 @@
+---
+title: "Detailed Statistical Analysis"
+---
+
+## Monthly Trends Analysis
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(lubridate)
+library(here)
+library(gt)
+
+climate_data <- readRDS(here("data", "processed", "02_cleaned_data.rds"))
+eda_results <- readRDS(here("data", "processed", "03_eda_results.rds"))
+```
+
+### Monthly Temperature Patterns
+
+```{r monthly-heatmap, fig.width=12, fig.height=6}
+knitr::include_graphics(here("output", "figures", "09_monthly_heatmap.png"))
+```
+
+### Comprehensive Dashboard
+
+```{r dashboard, fig.width=14, fig.height=10}
+knitr::include_graphics(here("output", "figures", "11_comprehensive_dashboard.png"))
+```
+
+## Statistical Tests
+
+### Temperature Variability
+
+```{r temp-variability}
+eda_results$temp_variability %>%
+  gt() %>%
+  tab_header(
+    title = "Daily Temperature Variability",
+    subtitle = "Range and standard deviation by city"
+  ) %>%
+  fmt_number(decimals = 2) %>%
+  opt_stylize(style = 6, color = "blue")
+```
+
+### Hourly Patterns
+
+```{r hourly-patterns}
+head(eda_results$hourly_patterns, 24) %>%
+  gt() %>%
+  tab_header(title = "Average Hourly Climate Patterns") %>%
+  fmt_number(decimals = 2) %>%
+  opt_stylize(style = 6, color = "cyan")
+```
+
+## Interactive Data Exploration
+
+```{r interactive-summary}
+# Summary by city and season
+climate_data %>%
+  group_by(city, season) %>%
+  summarise(
+    n = n(),
+    avg_temp = round(mean(temperature, na.rm = TRUE), 2),
+    sd_temp = round(sd(temperature, na.rm = TRUE), 2),
+    avg_humidity = round(mean(humidity, na.rm = TRUE), 2),
+    avg_wind = round(mean(wind_speed, na.rm = TRUE), 2),
+    .groups = "drop"
+  ) %>%
+  gt() %>%
+  tab_header(title = "Climate Summary by City and Season") %>%
+  opt_stylize(style = 6, color = "green")
+```

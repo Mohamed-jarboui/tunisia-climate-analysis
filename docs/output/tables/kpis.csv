@@ -1,0 +1,4 @@
+city,heat_days,cold_days,comfortable_days,high_humidity_hours,low_humidity_hours,windy_hours,calm_hours,sunny_hours,avg_comfort_index
+Bizerte,0,0,24,132,0,2,133,0,5.95
+Kef,0,39,9,154,0,0,172,269,3.35
+Sousse,0,0,110,261,1,0,521,0,10.53

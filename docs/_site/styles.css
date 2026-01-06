@@ -1,0 +1,202 @@
+/* ============================================================================
+   Tunisia Climate Capstone - Custom Styles
+   ============================================================================ */
+
+/* Main container */
+.quarto-title-banner {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 3rem 0;
+}
+
+/* Headers */
+h1, h2, h3, h4 {
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+h1 {
+  border-bottom: 3px solid #3498db;
+  padding-bottom: 0.5rem;
+}
+
+h2 {
+  border-bottom: 2px solid #95a5a6;
+  padding-bottom: 0.3rem;
+  margin-top: 2rem;
+}
+
+/* Code blocks */
+pre {
+  background-color: #f8f9fa;
+  border-left: 4px solid #3498db;
+  padding: 1rem;
+  border-radius: 4px;
+}
+
+code {
+  background-color: #f1f3f5;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 0.9em;
+}
+
+/* Callout boxes */
+.callout {
+  border-radius: 8px;
+  padding: 1rem;
+  margin: 1.5rem 0;
+  border-left: 5px solid;
+}
+
+.callout-note {
+  background-color: #e8f4f8;
+  border-color: #3498db;
+}
+
+.callout-tip {
+  background-color: #d5f4e6;
+  border-color: #27ae60;
+}
+
+.callout-warning {
+  background-color: #fff3cd;
+  border-color: #f39c12;
+}
+
+.callout-important {
+  background-color: #ffe8e8;
+  border-color: #e74c3c;
+}
+
+/* Tables */
+table {
+  width: 100%;
+  margin: 1.5rem 0;
+  border-collapse: collapse;
+}
+
+thead {
+  background-color: #3498db;
+  color: white;
+}
+
+th, td {
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid #ecf0f1;
+}
+
+tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+/* Figures */
+figure {
+  margin: 2rem 0;
+  text-align: center;
+}
+
+figcaption {
+  font-style: italic;
+  color: #7f8c8d;
+  margin-top: 0.5rem;
+}
+
+/* Links */
+a {
+  color: #3498db;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+a:hover {
+  color: #2980b9;
+  text-decoration: underline;
+}
+
+/* Navigation */
+.navbar {
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Sidebar */
+.sidebar {
+  background-color: #f8f9fa;
+  border-right: 1px solid #e9ecef;
+}
+
+.sidebar-item {
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.sidebar-item:hover {
+  background-color: #e9ecef;
+}
+
+/* Panel tabset */
+.panel-tabset {
+  margin: 2rem 0;
+}
+
+.panel-tabset .nav-link {
+  color: #495057;
+  background-color: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px 4px 0 0;
+}
+
+.panel-tabset .nav-link.active {
+  color: #3498db;
+  background-color: #fff;
+  border-color: #dee2e6 #dee2e6 #fff;
+}
+
+/* Footer */
+.page-footer {
+  background-color: #2c3e50;
+  color: white;
+  padding: 2rem 0;
+  margin-top: 4rem;
+}
+
+/* Responsive images */
+img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+/* Print styles */
+@media print {
+  .navbar, .sidebar, .page-footer {
+    display: none;
+  }
+  
+  body {
+    background: white;
+    color: black;
+  }
+}
+
+/* Custom utility classes */
+.text-center {
+  text-align: center;
+}
+
+.mt-4 {
+  margin-top: 2rem;
+}
+
+.mb-4 {
+  margin-bottom: 2rem;
+}
+
+.highlight {
+  background-color: #fff3cd;
+  padding: 0.2rem 0.4rem;
+  border-radius: 3px;
+}

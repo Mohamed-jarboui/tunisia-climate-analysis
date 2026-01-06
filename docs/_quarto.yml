@@ -1,0 +1,61 @@
+project:
+  type: website
+  output-dir: _site
+
+website:
+  title: "Tunisia Climate Analysis"
+  page-navigation: true
+  navbar:
+    background: primary
+    search: true
+    left:
+      - text: "Home"
+        file: index.qmd
+      - text: "Analysis"
+        file: analysis.qmd
+      - text: "Visualizations"
+        file: visualizations.qmd
+      - text: "About"
+        file: about.qmd
+  sidebar:
+    style: "docked"
+    search: true
+    contents:
+      - section: "Project"
+        contents:
+          - index.qmd
+          - analysis.qmd
+          - visualizations.qmd
+      - section: "Resources"
+        contents:
+          - about.qmd
+  page-footer:
+    left: "© 2026 Tunisia Climate Capstone Project"
+    right: "Built with [Quarto](https://quarto.org)"
+
+format:
+  html:
+    theme: 
+      light: [cosmo, custom.scss]
+      dark: [cosmo, custom.scss]
+    css: styles.css
+    toc: true
+    toc-depth: 3
+    toc-location: right
+    code-fold: true
+    code-tools: true
+    code-copy: true
+    smooth-scroll: true
+    link-external-newwindow: true
+    fig-width: 10
+    fig-height: 6
+    fig-dpi: 300
+
+execute:
+  echo: fenced
+  warning: false
+  message: false
+  cache: false
+  freeze: auto
+
+lang: en
