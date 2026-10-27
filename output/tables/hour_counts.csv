@@ -1,0 +1,4 @@
+city,hours,hours_below_5c,hours_above_80pct_humidity,calm_hours,pct_humid,pct_calm
+Bizerte,167,0,131,133,78.4,79.6
+Kef,280,40,165,180,58.9,64.3
+Sousse,290,0,173,251,59.7,86.6

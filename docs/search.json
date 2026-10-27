@@ -1,0 +1,128 @@
+[
+  {
+    "objectID": "analysis.html",
+    "href": "analysis.html",
+    "title": "Analysis",
+    "section": "",
+    "text": "Step\nScript\nWhat it does\n\n\n\n\nLoad\nscripts/01_data_loading.R\nReads the three station exports (long format: one row per timestamp and variable)\n\n\nClean\nscripts/02_data_cleaning.R\nParses and rounds timestamps to the hour, pivots to one row per station-hour, applies range checks and detects faulty sensors\n\n\nAnalyse\nscripts/03_eda.R\nCity comparison on the common period, daily cycles, daily temperature range, correlations, extremes\n\n\nPlot\nscripts/04_visualizations.R\nAll figures in output/figures/\n\n\n\nRscript run_all.R runs the four steps; quarto render builds this site."
+  },
+  {
+    "objectID": "analysis.html#pipeline",
+    "href": "analysis.html#pipeline",
+    "title": "Analysis",
+    "section": "",
+    "text": "Step\nScript\nWhat it does\n\n\n\n\nLoad\nscripts/01_data_loading.R\nReads the three station exports (long format: one row per timestamp and variable)\n\n\nClean\nscripts/02_data_cleaning.R\nParses and rounds timestamps to the hour, pivots to one row per station-hour, applies range checks and detects faulty sensors\n\n\nAnalyse\nscripts/03_eda.R\nCity comparison on the common period, daily cycles, daily temperature range, correlations, extremes\n\n\nPlot\nscripts/04_visualizations.R\nAll figures in output/figures/\n\n\n\nRscript run_all.R runs the four steps; quarto render builds this site."
+  },
+  {
+    "objectID": "analysis.html#data-cleaning",
+    "href": "analysis.html#data-cleaning",
+    "title": "Analysis",
+    "section": "2. Data cleaning",
+    "text": "2. Data cleaning\nTimestamps. Readings arrive on the hour, sometimes a few seconds late (07:00:02), so they are rounded to the hour before reshaping. Midnight timestamps needed care: converting them back to text drops the time part, which silently lost 310 midnight readings in an earlier version of this analysis.\nRange checks. Values outside physical limits (temperature outside −20 to 60 °C, humidity outside 0 to 100 %, wind above 60 m/s, solar above 1,400 W/m²) are set to missing. None were found.\nSensor fault detection. A working solar sensor reads close to 0 W/m² at night. Each station’s median reading between 20:00 and 05:00 is checked:\n\n\nCode\nquality %&gt;%\n  transmute(Station = city,\n            `Median night-time solar (W/m²)` = round(median_night_solar, 1),\n            Verdict = if_else(solar_sensor_ok, \"OK\", \"Faulty: solar readings removed\")) %&gt;%\n  kable()\n\n\n\n\n\n\n\n\n\n\nStation\nMedian night-time solar (W/m²)\nVerdict\n\n\n\n\nBizerte\n0.0\nOK\n\n\nKef\n954.1\nFaulty: solar readings removed\n\n\nSousse\n0.0\nOK\n\n\n\n\n\nKef’s sensor reports 945 to 958 W/m² around the clock, so all its solar values are excluded. Without this check, Kef would appear to receive ten times more sunlight than the coastal stations.\nCommon period. The stations cover different dates (Sousse runs until 6 January), so cities are compared only on the hours between 07 Dec 01:00 and 19 Dec 2025 05:00."
+  },
+  {
+    "objectID": "analysis.html#city-comparison-common-period",
+    "href": "analysis.html#city-comparison-common-period",
+    "title": "Analysis",
+    "section": "3. City comparison (common period)",
+    "text": "3. City comparison (common period)\n\n\nCode\neda$city_stats %&gt;%\n  transmute(Station = city, `Hours` = hours,\n            `Mean temp (°C)` = avg_temp, `Min (°C)` = min_temp, `Max (°C)` = max_temp,\n            `Mean humidity (%)` = avg_humidity, `Mean dew point (°C)` = avg_dew_point,\n            `Mean wind (m/s)` = avg_wind, `Max wind (m/s)` = max_wind) %&gt;%\n  kable()\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nStation\nHours\nMean temp (°C)\nMin (°C)\nMax (°C)\nMean humidity (%)\nMean dew point (°C)\nMean wind (m/s)\nMax wind (m/s)\n\n\n\n\nSousse\n290\n15.4\n6.4\n22.3\n83.3\n12.4\n1.0\n6.3\n\n\nBizerte\n167\n14.7\n8.4\n22.3\n90.3\n13.0\n1.6\n12.4\n\n\nKef\n280\n10.5\n0.5\n19.5\n79.9\n6.8\n2.1\n7.8\n\n\n\n\n\n\n\nCode\neda$hour_counts %&gt;%\n  transmute(Station = city, Hours = hours,\n            `Hours below 5 °C` = hours_below_5c,\n            `Hours above 80 % humidity` = hours_above_80pct_humidity,\n            `Share humid (%)` = pct_humid,\n            `Calm hours (&lt; 2 m/s)` = calm_hours,\n            `Share calm (%)` = pct_calm) %&gt;%\n  kable()\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nStation\nHours\nHours below 5 °C\nHours above 80 % humidity\nShare humid (%)\nCalm hours (&lt; 2 m/s)\nShare calm (%)\n\n\n\n\nBizerte\n167\n0\n131\n78.4\n133\n79.6\n\n\nKef\n280\n40\n165\n58.9\n180\n64.3\n\n\nSousse\n290\n0\n173\n59.7\n251\n86.6"
+  },
+  {
+    "objectID": "analysis.html#daily-temperature-range",
+    "href": "analysis.html#daily-temperature-range",
+    "title": "Analysis",
+    "section": "4. Daily temperature range",
+    "text": "4. Daily temperature range\nDifference between the daily maximum and minimum, on days with at least 18 hourly readings. Bizerte, which logs every two hours, has no such days and is left out.\n\n\nCode\neda$temp_variability %&gt;%\n  transmute(Station = city, `Full days` = full_days,\n            `Mean daily range (°C)` = avg_daily_range,\n            `Largest daily range (°C)` = max_daily_range) %&gt;%\n  kable()\n\n\n\n\n\nStation\nFull days\nMean daily range (°C)\nLargest daily range (°C)\n\n\n\n\nKef\n12\n12.1\n18.2\n\n\nSousse\n12\n8.9\n12.5"
+  },
+  {
+    "objectID": "analysis.html#daily-cycle",
+    "href": "analysis.html#daily-cycle",
+    "title": "Analysis",
+    "section": "5. Daily cycle",
+    "text": "5. Daily cycle\n\n\nCode\neda$peak_hours %&gt;%\n  transmute(Station = city,\n            `Warmest hour` = sprintf(\"%02d:00\", warmest_hour),\n            `Coldest hour` = sprintf(\"%02d:00\", coldest_hour)) %&gt;%\n  kable()\n\n\n\n\n\nStation\nWarmest hour\nColdest hour\n\n\n\n\nBizerte\n15:00\n07:00\n\n\nKef\n15:00\n06:00\n\n\nSousse\n14:00\n07:00"
+  },
+  {
+    "objectID": "analysis.html#correlations",
+    "href": "analysis.html#correlations",
+    "title": "Analysis",
+    "section": "6. Correlations",
+    "text": "6. Correlations\nPearson correlation between hourly values, all available data per station.\n\n\nCode\neda$correlations %&gt;%\n  transmute(Station = city,\n            `Temperature / humidity` = temp_humidity,\n            `Temperature / solar` = temp_solar,\n            `Temperature / wind` = temp_wind) %&gt;%\n  kable()\n\n\n\n\n\n\n\n\n\n\n\nStation\nTemperature / humidity\nTemperature / solar\nTemperature / wind\n\n\n\n\nBizerte\n-0.77\n0.46\n0.44\n\n\nKef\n-0.86\nNA\n0.49\n\n\nSousse\n-0.46\n0.53\n0.32\n\n\n\n\n\nHumidity is strongly and negatively linked to temperature everywhere: relative humidity drops when the air warms up during the day. Temperature and wind are moderately positive, consistent with winds picking up during the warmer afternoon hours."
+  },
+  {
+    "objectID": "analysis.html#extremes",
+    "href": "analysis.html#extremes",
+    "title": "Analysis",
+    "section": "7. Extremes",
+    "text": "7. Extremes\n\n\nCode\neda$extreme_events %&gt;%\n  transmute(Station = city,\n            `Hottest (°C)` = hottest_temp, When = format(hottest_time, \"%d %b %H:%M\"),\n            `Coldest (°C)` = coldest_temp, `When ` = format(coldest_time, \"%d %b %H:%M\"),\n            `Strongest wind (m/s)` = strongest_wind, `When  ` = format(strongest_wind_time, \"%d %b %H:%M\")) %&gt;%\n  kable()\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nStation\nHottest (°C)\nWhen\nColdest (°C)\nWhen\nStrongest wind (m/s)\nWhen\n\n\n\n\nBizerte\n22.3\n16 Dec 15:00\n8.4\n10 Dec 04:00\n12.44\n07 Dec 15:00\n\n\nKef\n19.5\n10 Dec 15:00\n0.5\n11 Dec 08:00\n7.80\n15 Dec 09:00\n\n\nSousse\n22.9\n03 Jan 15:00\n6.4\n10 Dec 07:00\n6.31\n07 Dec 13:00\n\n\n\n\n\nAll three stations recorded their coldest hour on the mornings of 10 and 11 December, which points to a regional cold spell rather than a local effect."
+  },
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
+    "section": "",
+    "text": "An R data analysis project from my Data Science and AI engineering studies at École Polytechnique de Sousse: load raw sensor exports, clean them, check data quality, compare stations and publish the results as a reproducible Quarto website.\nAuthor: Mohamed Jarboui"
+  },
+  {
+    "objectID": "about.html#project",
+    "href": "about.html#project",
+    "title": "About",
+    "section": "",
+    "text": "An R data analysis project from my Data Science and AI engineering studies at École Polytechnique de Sousse: load raw sensor exports, clean them, check data quality, compare stations and publish the results as a reproducible Quarto website.\nAuthor: Mohamed Jarboui"
+  },
+  {
+    "objectID": "about.html#data",
+    "href": "about.html#data",
+    "title": "About",
+    "section": "Data",
+    "text": "Data\nSource: Tunisia Open Data Portal, dataset Capteur d’environnement de la station climatique (climate station environmental sensors), one export per station.\n\n\n\n\n\n\n\nVariable\nUnit\n\n\n\n\nTemperature\n°C\n\n\nRelative humidity\n%\n\n\nDew point\n°C\n\n\nWind speed\nm/s\n\n\nWind direction\ndegrees\n\n\nSolar radiation\nW/m²\n\n\nAtmospheric pressure (Bizerte, Sousse)\nhPa (labelled mm/j in the export)"
+  },
+  {
+    "objectID": "about.html#tools",
+    "href": "about.html#tools",
+    "title": "About",
+    "section": "Tools",
+    "text": "Tools\nR (tidyverse, lubridate, ggplot2, patchwork), Quarto, Git."
+  },
+  {
+    "objectID": "about.html#reproduce",
+    "href": "about.html#reproduce",
+    "title": "About",
+    "section": "Reproduce",
+    "text": "Reproduce\ngit clone https://github.com/Mohamed-jarboui/tunisia-climate-analysis.git\ncd tunisia-climate-analysis\nRscript requirements.R\nRscript run_all.R\nquarto render"
+  },
+  {
+    "objectID": "visualizations.html",
+    "href": "visualizations.html",
+    "title": "Figures",
+    "section": "",
+    "text": "All figures are produced by scripts/04_visualizations.R and saved in output/figures/.\n\nTemperatureDaily cycleHumidityWindSolarOverview"
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Tunisia Climate Analysis",
+    "section": "",
+    "text": "Three automatic weather stations from the Tunisia Open Data Portal, one inland and two on the coast, recorded hourly temperature, humidity, wind and solar radiation in December 2025. Over the 1,113 station-hours, and comparing only the period all three stations share (07 December 2025 to 19 December 2025):\n\nKef, inland in the northwestern highlands, is the coldest station: 10.5 °C on average against 15.4 °C in Sousse and 14.7 °C in Bizerte. It is the only one that dropped below 5 °C (40 hours, minimum 0.5 °C).\nKef also has the largest day-night swing: 12.1 °C between daily minimum and maximum on average, against 8.9 °C in Sousse. The sea keeps coastal temperatures steadier.\nBizerte is the most humid: 90.3 % relative humidity on average, above 80 % in 78.4 % of its hours.\nHumidity moves opposite to temperature at every station (correlation from -0.46 to -0.86): it peaks around sunrise (06:00 to 08:00) and is lowest around 15:00, when temperatures peak.\nThe Kef solar sensor is faulty. It reports about 950 W/m² day and night, so its solar readings were excluded instead of making Kef look like the sunniest city."
+  },
+  {
+    "objectID": "index.html#in-short",
+    "href": "index.html#in-short",
+    "title": "Tunisia Climate Analysis",
+    "section": "",
+    "text": "Three automatic weather stations from the Tunisia Open Data Portal, one inland and two on the coast, recorded hourly temperature, humidity, wind and solar radiation in December 2025. Over the 1,113 station-hours, and comparing only the period all three stations share (07 December 2025 to 19 December 2025):\n\nKef, inland in the northwestern highlands, is the coldest station: 10.5 °C on average against 15.4 °C in Sousse and 14.7 °C in Bizerte. It is the only one that dropped below 5 °C (40 hours, minimum 0.5 °C).\nKef also has the largest day-night swing: 12.1 °C between daily minimum and maximum on average, against 8.9 °C in Sousse. The sea keeps coastal temperatures steadier.\nBizerte is the most humid: 90.3 % relative humidity on average, above 80 % in 78.4 % of its hours.\nHumidity moves opposite to temperature at every station (correlation from -0.46 to -0.86): it peaks around sunrise (06:00 to 08:00) and is lowest around 15:00, when temperatures peak.\nThe Kef solar sensor is faulty. It reports about 950 W/m² day and night, so its solar readings were excluded instead of making Kef look like the sunniest city."
+  },
+  {
+    "objectID": "index.html#data",
+    "href": "index.html#data",
+    "title": "Tunisia Climate Analysis",
+    "section": "Data",
+    "text": "Data\n\n\nCode\nquality %&gt;%\n  transmute(\n    Station = city,\n    From = format(first_reading, \"%d %b %Y %H:%M\"),\n    To = format(last_reading, \"%d %b %Y %H:%M\"),\n    Days = days_covered,\n    `Hourly records` = station_hours,\n    `Solar sensor` = if_else(solar_sensor_ok, \"OK\", \"Faulty (excluded)\")\n  ) %&gt;%\n  kable()\n\n\n\n\n\n\n\n\n\n\n\n\n\nStation\nFrom\nTo\nDays\nHourly records\nSolar sensor\n\n\n\n\nBizerte\n07 Dec 2025 01:00\n19 Dec 2025 07:00\n13\n168\nOK\n\n\nKef\n07 Dec 2025 00:00\n19 Dec 2025 05:00\n13\n281\nFaulty (excluded)\n\n\nSousse\n07 Dec 2025 00:00\n06 Jan 2026 14:00\n31\n664\nOK\n\n\n\n\n\nBizerte logs roughly every two hours, so it has fewer records over the same period. Sousse kept recording until early January; its extra weeks are used for its own time series but not in the city comparison."
+  },
+  {
+    "objectID": "index.html#limitations",
+    "href": "index.html#limitations",
+    "title": "Tunisia Climate Analysis",
+    "section": "Limitations",
+    "text": "Limitations\n\nAbout two to four weeks of winter data. The results describe December 2025, not the climate of these cities. Seasonal patterns or long-term trends cannot be studied with this sample.\nThree stations, one per city. Each station reflects its exact location (exposure, altitude, distance to the sea), not the whole city.\nHumidity readings cap at 100 %: 73 % of Bizerte’s night-time readings are exactly 100 %, so its humidity spread is compressed.\n\nSee Analysis for the cleaning steps and detailed tables, and Figures for every chart."
+  }
+]

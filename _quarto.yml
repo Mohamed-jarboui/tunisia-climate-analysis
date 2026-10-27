@@ -1,0 +1,52 @@
+project:
+  type: website
+  output-dir: docs
+  render:
+    - index.qmd
+    - analysis.qmd
+    - visualizations.qmd
+    - about.qmd
+  resources:
+    - output/figures/*.png
+
+website:
+  title: "Tunisia Climate Analysis"
+  site-url: "https://mohamed-jarboui.github.io/tunisia-climate-analysis/"
+  repo-url: "https://github.com/Mohamed-jarboui/tunisia-climate-analysis"
+  repo-actions: [source]
+  navbar:
+    background: primary
+    search: true
+    left:
+      - text: "Findings"
+        file: index.qmd
+      - text: "Analysis"
+        file: analysis.qmd
+      - text: "Figures"
+        file: visualizations.qmd
+      - text: "About"
+        file: about.qmd
+    right:
+      - icon: github
+        href: "https://github.com/Mohamed-jarboui/tunisia-climate-analysis"
+  page-footer:
+    left: "Mohamed Jarboui · Data: Tunisia Open Data Portal"
+    right: "Built with R and [Quarto](https://quarto.org)"
+
+format:
+  html:
+    theme:
+      light: [cosmo, assets/custom.scss]
+    css: assets/styles.css
+    toc: true
+    code-fold: true
+    code-tools: true
+    fig-width: 9
+    fig-height: 5.5
+
+execute:
+  warning: false
+  message: false
+  freeze: false
+
+lang: en

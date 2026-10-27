@@ -1,0 +1,4 @@
+city,hours,avg_temp,min_temp,max_temp,avg_humidity,avg_wind,max_wind,avg_dew_point
+Sousse,290,15.4,6.4,22.3,83.3,1,6.3,12.4
+Bizerte,167,14.7,8.4,22.3,90.3,1.6,12.4,13
+Kef,280,10.5,0.5,19.5,79.9,2.1,7.8,6.8

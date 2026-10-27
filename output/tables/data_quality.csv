@@ -1,0 +1,4 @@
+city,first_reading,last_reading,days_covered,station_hours,temperature_missing,humidity_missing,wind_missing,solar_missing,median_night_solar,solar_sensor_ok
+Bizerte,2025-12-07T01:00:00Z,2025-12-19T07:00:00Z,13,168,0,0,0,0,0,TRUE
+Kef,2025-12-07T00:00:00Z,2025-12-19T05:00:00Z,13,281,0,0,0,281,954.1,FALSE
+Sousse,2025-12-07T00:00:00Z,2026-01-06T14:00:00Z,31,664,0,0,0,0,0,TRUE

@@ -1,168 +1,135 @@
 # ==============================================================================
-# Tunisia Climate Capstone - Data Cleaning Script
+# Tunisia Climate Analysis - Data Cleaning
 # ==============================================================================
-# Purpose: Clean and transform data for analysis
-# Author: Your Name
-# Date: January 2026
+# Purpose: Parse timestamps, reshape to one row per station-hour, run quality
+#          checks and remove readings from faulty sensors
+# Author: Mohamed Jarboui
 # ==============================================================================
 
 library(tidyverse)
 library(lubridate)
 library(here)
 
-# Load combined raw data
-cat("📂 Loading raw data...\n")
+cat("Loading raw data...\n")
 raw_data <- readRDS(here("data", "processed", "01_raw_combined.rds"))
 
-# ==============================================================================
-# STEP 1: Parse dates and extract time components
-# ==============================================================================
-cat("\n🕐 Step 1: Parsing dates...\n")
-
-cleaned_data <- raw_data %>%
+# ------------------------------------------------------------------------------
+# 1. Parse timestamps and add time features
+# ------------------------------------------------------------------------------
+# Readings are logged on the hour, sometimes with a few seconds of delay
+# (e.g. 07:00:02), so timestamps are rounded to the hour.
+# read_csv already parses Date as a datetime; converting it back to text would
+# drop the time at midnight ("2025-12-07") and lose those readings.
+parsed <- raw_data %>%
   mutate(
-    # Parse datetime
-    datetime = ymd_hms(Date, quiet = TRUE),
-    
-    # Extract components
+    datetime = round_date(as_datetime(Date), "hour"),
     date = as_date(datetime),
-    year = year(datetime),
-    month = month(datetime, label = TRUE, abbr = FALSE),
-    day = day(datetime),
     hour = hour(datetime),
-    
-    # Create time period categories
     time_period = case_when(
       hour >= 6 & hour < 12 ~ "Morning",
       hour >= 12 & hour < 18 ~ "Afternoon",
-      hour >= 18 & hour < 24 ~ "Evening",
+      hour >= 18 ~ "Evening",
       TRUE ~ "Night"
-    ),
-    
-    # Season (Northern Hemisphere)
-    season = case_when(
-      month(datetime) %in% c(12, 1, 2) ~ "Winter",
-      month(datetime) %in% c(3, 4, 5) ~ "Spring",
-      month(datetime) %in% c(6, 7, 8) ~ "Summer",
-      month(datetime) %in% c(9, 10, 11) ~ "Autumn"
     )
   )
 
-cat(sprintf("   ✓ Parsed %d datetime records\n", nrow(cleaned_data)))
+n_unparsed <- sum(is.na(parsed$datetime))
+cat(sprintf("  Parsed %d readings (%d unparseable timestamps dropped)\n",
+            nrow(parsed), n_unparsed))
+parsed <- filter(parsed, !is.na(datetime))
 
-# ==============================================================================
-# STEP 2: Standardize variable names and convert to wide format
-# ==============================================================================
-cat("\n📊 Step 2: Transforming to wide format...\n")
+# ------------------------------------------------------------------------------
+# 2. Long to wide: one row per city and hour
+# ------------------------------------------------------------------------------
+# Variable names are matched without accents so the join works in any locale
+strip_accents <- function(x) stringi::stri_trans_general(x, "Latin-ASCII")
 
-# Create English variable names mapping
 variable_mapping <- tibble(
-  nom_fr = c("Température", "Humidité relative", "Vitesse du vent", 
-             "Direction du vent", "Point de Rosée", "Rayonnement solaire"),
-  variable_en = c("temperature", "humidity", "wind_speed", 
-                  "wind_direction", "dew_point", "solar_radiation")
+  key = c("Temperature", "Humidite relative", "Vitesse du vent",
+          "Direction du vent", "Point de Rosee", "Rayonnement solaire",
+          "Pression atmospherique"),
+  variable = c("temperature", "humidity", "wind_speed",
+               "wind_direction", "dew_point", "solar_radiation", "pressure")
 )
 
-# Transform to wide format  ✅ FIX APPLIED HERE
-wide_data <- cleaned_data %>%
-  left_join(variable_mapping, by = "nom_fr") %>%
-  select(datetime, date, year, month, day, hour, time_period, season, 
-         city, variable_en, valeur) %>%
-  pivot_wider(
-    names_from = variable_en,
-    values_from = valeur,
-    values_fn = mean,
-    values_fill = NA
-  )
+wide_data <- parsed %>%
+  mutate(key = strip_accents(nom_fr)) %>%
+  inner_join(variable_mapping, by = "key") %>%   # drops evapotranspiration (not used)
+  select(city, datetime, date, hour, time_period, variable, valeur) %>%
+  pivot_wider(names_from = variable, values_from = valeur, values_fn = mean) %>%
+  arrange(city, datetime)
 
-cat(sprintf("   ✓ Transformed to %d rows with %d columns\n", 
-            nrow(wide_data), ncol(wide_data)))
+cat(sprintf("  Reshaped to %d station-hours\n", nrow(wide_data)))
 
-# ==============================================================================
-# STEP 3: Handle missing values
-# ==============================================================================
-cat("\n🔍 Step 3: Checking for missing values...\n")
-
-# Count missing values
-missing_summary <- wide_data %>%
-  summarise(across(temperature:solar_radiation, 
-                   ~sum(is.na(.)), 
-                   .names = "missing_{.col}"))
-
-print(missing_summary)
-
-# Calculate percentage of missing data
-missing_pct <- wide_data %>%
-  summarise(across(temperature:solar_radiation, 
-                   ~round(sum(is.na(.)) / n() * 100, 2),
-                   .names = "pct_missing_{.col}"))
-
-print(missing_pct)
-
-# Remove rows with all NA values in measurements
-wide_data <- wide_data %>%
-  filter(!if_all(temperature:solar_radiation, is.na))
-
-cat(sprintf("   ✓ Removed rows with all missing measurements\n"))
-cat(sprintf("   ✓ Final dataset: %d rows\n", nrow(wide_data)))
-
-# ==============================================================================
-# STEP 4: Data validation and quality checks
-# ==============================================================================
-cat("\n✅ Step 4: Validating data quality...\n")
-
-# Check for unrealistic values
-quality_checks <- wide_data %>%
+# ------------------------------------------------------------------------------
+# 3. Range checks: physically impossible values become NA
+# ------------------------------------------------------------------------------
+range_checks <- wide_data %>%
   summarise(
-    temp_outliers = sum(temperature < -20 | temperature > 60, na.rm = TRUE),
-    humidity_outliers = sum(humidity < 0 | humidity > 100, na.rm = TRUE),
-    wind_outliers = sum(wind_speed < 0 | wind_speed > 50, na.rm = TRUE),
-    solar_outliers = sum(solar_radiation < 0 | solar_radiation > 1500, na.rm = TRUE)
+    temperature = sum(temperature < -20 | temperature > 60, na.rm = TRUE),
+    humidity = sum(humidity < 0 | humidity > 100, na.rm = TRUE),
+    wind_speed = sum(wind_speed < 0 | wind_speed > 60, na.rm = TRUE),
+    solar_radiation = sum(solar_radiation < 0 | solar_radiation > 1400, na.rm = TRUE)
   )
+cat("  Out-of-range values:\n"); print(range_checks)
 
-cat("\n   Potential outliers detected:\n")
-print(quality_checks)
-
-# Remove impossible values (optional - be careful!)
-# Keeping outliers for now, but flagging them
 wide_data <- wide_data %>%
   mutate(
-    quality_flag = case_when(
-      temperature < -20 | temperature > 60 ~ "temperature_outlier",
-      humidity < 0 | humidity > 100 ~ "humidity_outlier",
-      wind_speed < 0 | wind_speed > 50 ~ "wind_outlier",
-      solar_radiation < 0 | solar_radiation > 1500 ~ "solar_outlier",
-      TRUE ~ "ok"
-    )
+    temperature = if_else(between(temperature, -20, 60), temperature, NA_real_),
+    humidity = if_else(between(humidity, 0, 100), humidity, NA_real_),
+    wind_speed = if_else(between(wind_speed, 0, 60), wind_speed, NA_real_),
+    solar_radiation = if_else(between(solar_radiation, 0, 1400), solar_radiation, NA_real_)
   )
 
-# ==============================================================================
-# STEP 5: Create summary statistics by city
-# ==============================================================================
-cat("\n📈 Step 5: Creating summary statistics...\n")
-
-city_summary <- wide_data %>%
+# ------------------------------------------------------------------------------
+# 4. Sensor fault detection: solar radiation must be ~0 at night
+# ------------------------------------------------------------------------------
+# A working pyranometer reads close to 0 W/m² between 20:00 and 05:00.
+# If the median night reading of a station is above 50 W/m², its solar sensor
+# is considered faulty and all its solar readings are removed.
+solar_check <- wide_data %>%
+  filter(hour >= 20 | hour <= 5) %>%
   group_by(city) %>%
   summarise(
-    n_observations = n(),
-    avg_temperature = round(mean(temperature, na.rm = TRUE), 2),
-    avg_humidity = round(mean(humidity, na.rm = TRUE), 2),
-    avg_wind_speed = round(mean(wind_speed, na.rm = TRUE), 2),
-    avg_solar_radiation = round(mean(solar_radiation, na.rm = TRUE), 2),
-    date_range = paste(min(date), "to", max(date))
-  )
+    night_hours = sum(!is.na(solar_radiation)),
+    median_night_solar = median(solar_radiation, na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  mutate(solar_sensor_ok = is.na(median_night_solar) | median_night_solar <= 50)
 
-print(city_summary)
+cat("  Solar sensor check (night-time readings):\n"); print(solar_check)
 
-# ==============================================================================
-# STEP 6: Save cleaned data
-# ==============================================================================
-cat("\n💾 Saving cleaned data...\n")
+faulty_solar <- solar_check %>% filter(!solar_sensor_ok) %>% pull(city)
+wide_data <- wide_data %>%
+  mutate(solar_radiation = if_else(city %in% faulty_solar, NA_real_, solar_radiation))
 
+if (length(faulty_solar) > 0) {
+  cat(sprintf("  Solar readings removed for: %s\n", paste(faulty_solar, collapse = ", ")))
+}
+
+# ------------------------------------------------------------------------------
+# 5. Coverage summary and save
+# ------------------------------------------------------------------------------
+coverage <- wide_data %>%
+  group_by(city) %>%
+  summarise(
+    first_reading = min(datetime),
+    last_reading = max(datetime),
+    days_covered = as.numeric(difftime(max(date), min(date), units = "days")) + 1,
+    station_hours = n(),
+    temperature_missing = sum(is.na(temperature)),
+    humidity_missing = sum(is.na(humidity)),
+    wind_missing = sum(is.na(wind_speed)),
+    solar_missing = sum(is.na(solar_radiation)),
+    .groups = "drop"
+  ) %>%
+  left_join(select(solar_check, city, median_night_solar, solar_sensor_ok), by = "city")
+
+print(coverage)
+
+dir.create(here("output", "tables"), recursive = TRUE, showWarnings = FALSE)
 saveRDS(wide_data, here("data", "processed", "02_cleaned_data.rds"))
 write_csv(wide_data, here("data", "processed", "02_cleaned_data.csv"))
-saveRDS(city_summary, here("data", "processed", "02_city_summary.rds"))
+write_csv(coverage, here("output", "tables", "data_quality.csv"))
 
-cat("\n✅ Data cleaning complete!\n")
-cat(sprintf("   📁 Cleaned data saved to: data/processed/02_cleaned_data.rds\n"))
-cat(sprintf("   📁 CSV export saved to: data/processed/02_cleaned_data.csv\n"))
+cat("\nData cleaning complete.\n")

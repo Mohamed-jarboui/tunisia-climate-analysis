@@ -1,6 +1,6 @@
-options(timeout = 300, repos = c(CRAN = "https://cloud.r-project.org"))
-
-pkgs <- c("tidyverse","lubridate","scales","patchwork","here","knitr","gt")
-pkgs <- pkgs[!pkgs %in% rownames(installed.packages())]
-
-install.packages(pkgs, dependencies = TRUE)
+# Install the R packages used by the analysis and the report
+pkgs <- c("tidyverse", "lubridate", "here", "patchwork", "scales", "knitr", "rmarkdown", "stringi")
+missing <- pkgs[!pkgs %in% rownames(installed.packages())]
+if (length(missing) > 0) {
+  install.packages(missing, repos = "https://cloud.r-project.org")
+}

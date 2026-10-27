@@ -2,8 +2,7 @@
 # Tunisia Climate Capstone - Data Loading Script
 # ==============================================================================
 # Purpose: Load raw CSV data from three Tunisian cities
-# Author: Your Name
-# Date: January 2026
+# Author: Mohamed Jarboui
 # ==============================================================================
 
 # Load required libraries
@@ -65,6 +64,7 @@ cat("\n📋 Sample Data:\n")
 print(head(combined_data, 10))
 
 # Save the combined raw data
+dir.create(here("data", "processed"), recursive = TRUE, showWarnings = FALSE)
 saveRDS(combined_data, here("data", "processed", "01_raw_combined.rds"))
 cat("\n💾 Saved combined data to: data/processed/01_raw_combined.rds\n")
 

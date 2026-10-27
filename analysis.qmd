@@ -1,0 +1,119 @@
+---
+title: "Analysis"
+---
+
+```{r setup}
+#| include: false
+library(tidyverse)
+library(here)
+library(knitr)
+
+climate <- readRDS(here("data", "processed", "02_cleaned_data.rds"))
+eda <- readRDS(here("data", "processed", "03_eda_results.rds"))
+quality <- read_csv(here("output", "tables", "data_quality.csv"), show_col_types = FALSE)
+```
+
+## 1. Pipeline
+
+| Step | Script | What it does |
+|---|---|---|
+| Load | `scripts/01_data_loading.R` | Reads the three station exports (long format: one row per timestamp and variable) |
+| Clean | `scripts/02_data_cleaning.R` | Parses and rounds timestamps to the hour, pivots to one row per station-hour, applies range checks and detects faulty sensors |
+| Analyse | `scripts/03_eda.R` | City comparison on the common period, daily cycles, daily temperature range, correlations, extremes |
+| Plot | `scripts/04_visualizations.R` | All figures in `output/figures/` |
+
+`Rscript run_all.R` runs the four steps; `quarto render` builds this site.
+
+## 2. Data cleaning
+
+**Timestamps.** Readings arrive on the hour, sometimes a few seconds late (`07:00:02`), so they are rounded to the hour before reshaping. Midnight timestamps needed care: converting them back to text drops the time part, which silently lost 310 midnight readings in an earlier version of this analysis.
+
+**Range checks.** Values outside physical limits (temperature outside −20 to 60 °C, humidity outside 0 to 100 %, wind above 60 m/s, solar above 1,400 W/m²) are set to missing. None were found.
+
+**Sensor fault detection.** A working solar sensor reads close to 0 W/m² at night. Each station's median reading between 20:00 and 05:00 is checked:
+
+```{r solar-check}
+quality %>%
+  transmute(Station = city,
+            `Median night-time solar (W/m²)` = round(median_night_solar, 1),
+            Verdict = if_else(solar_sensor_ok, "OK", "Faulty: solar readings removed")) %>%
+  kable()
+```
+
+Kef's sensor reports 945 to 958 W/m² around the clock, so all its solar values are excluded. Without this check, Kef would appear to receive ten times more sunlight than the coastal stations.
+
+**Common period.** The stations cover different dates (Sousse runs until 6 January), so cities are compared only on the hours between `r format(eda$common_start, "%d %b %H:%M")` and `r format(eda$common_end, "%d %b %Y %H:%M")`.
+
+## 3. City comparison (common period)
+
+```{r city-stats}
+eda$city_stats %>%
+  transmute(Station = city, `Hours` = hours,
+            `Mean temp (°C)` = avg_temp, `Min (°C)` = min_temp, `Max (°C)` = max_temp,
+            `Mean humidity (%)` = avg_humidity, `Mean dew point (°C)` = avg_dew_point,
+            `Mean wind (m/s)` = avg_wind, `Max wind (m/s)` = max_wind) %>%
+  kable()
+```
+
+```{r hour-counts}
+eda$hour_counts %>%
+  transmute(Station = city, Hours = hours,
+            `Hours below 5 °C` = hours_below_5c,
+            `Hours above 80 % humidity` = hours_above_80pct_humidity,
+            `Share humid (%)` = pct_humid,
+            `Calm hours (< 2 m/s)` = calm_hours,
+            `Share calm (%)` = pct_calm) %>%
+  kable()
+```
+
+## 4. Daily temperature range
+
+Difference between the daily maximum and minimum, on days with at least 18 hourly readings. Bizerte, which logs every two hours, has no such days and is left out.
+
+```{r daily-range}
+eda$temp_variability %>%
+  transmute(Station = city, `Full days` = full_days,
+            `Mean daily range (°C)` = avg_daily_range,
+            `Largest daily range (°C)` = max_daily_range) %>%
+  kable()
+```
+
+## 5. Daily cycle
+
+```{r peak-hours}
+eda$peak_hours %>%
+  transmute(Station = city,
+            `Warmest hour` = sprintf("%02d:00", warmest_hour),
+            `Coldest hour` = sprintf("%02d:00", coldest_hour)) %>%
+  kable()
+```
+
+![](output/figures/03_daily_cycle.png)
+
+## 6. Correlations
+
+Pearson correlation between hourly values, all available data per station.
+
+```{r correlations}
+eda$correlations %>%
+  transmute(Station = city,
+            `Temperature / humidity` = temp_humidity,
+            `Temperature / solar` = temp_solar,
+            `Temperature / wind` = temp_wind) %>%
+  kable()
+```
+
+Humidity is strongly and negatively linked to temperature everywhere: relative humidity drops when the air warms up during the day. Temperature and wind are moderately positive, consistent with winds picking up during the warmer afternoon hours.
+
+## 7. Extremes
+
+```{r extremes}
+eda$extreme_events %>%
+  transmute(Station = city,
+            `Hottest (°C)` = hottest_temp, When = format(hottest_time, "%d %b %H:%M"),
+            `Coldest (°C)` = coldest_temp, `When ` = format(coldest_time, "%d %b %H:%M"),
+            `Strongest wind (m/s)` = strongest_wind, `When  ` = format(strongest_wind_time, "%d %b %H:%M")) %>%
+  kable()
+```
+
+All three stations recorded their coldest hour on the mornings of 10 and 11 December, which points to a regional cold spell rather than a local effect.

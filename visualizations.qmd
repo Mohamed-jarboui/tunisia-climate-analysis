@@ -1,0 +1,38 @@
+---
+title: "Figures"
+toc: false
+---
+
+All figures are produced by `scripts/04_visualizations.R` and saved in `output/figures/`.
+
+::: {.panel-tabset}
+
+## Temperature
+
+![](output/figures/01_temperature_by_city.png)
+
+![](output/figures/02_daily_temperature.png)
+
+## Daily cycle
+
+![](output/figures/03_daily_cycle.png)
+
+## Humidity
+
+![](output/figures/04_humidity_by_city.png)
+
+![](output/figures/05_temp_vs_humidity.png)
+
+## Wind
+
+![](output/figures/06_wind_speed.png)
+
+## Solar
+
+![](output/figures/07_solar_daily_cycle.png)
+
+## Overview
+
+![](output/figures/08_overview.png)
+
+:::

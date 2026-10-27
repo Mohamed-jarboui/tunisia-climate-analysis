@@ -1,0 +1,38 @@
+---
+title: "About"
+toc: false
+---
+
+## Project
+
+An R data analysis project from my Data Science and AI engineering studies at École Polytechnique de Sousse: load raw sensor exports, clean them, check data quality, compare stations and publish the results as a reproducible Quarto website.
+
+**Author:** Mohamed Jarboui
+
+## Data
+
+**Source:** [Tunisia Open Data Portal](https://catalog.data.gov.tn), dataset *Capteur d'environnement de la station climatique* (climate station environmental sensors), one export per station.
+
+| Variable | Unit |
+|---|---|
+| Temperature | °C |
+| Relative humidity | % |
+| Dew point | °C |
+| Wind speed | m/s |
+| Wind direction | degrees |
+| Solar radiation | W/m² |
+| Atmospheric pressure (Bizerte, Sousse) | hPa (labelled mm/j in the export) |
+
+## Tools
+
+R (tidyverse, lubridate, ggplot2, patchwork), Quarto, Git.
+
+## Reproduce
+
+```bash
+git clone https://github.com/Mohamed-jarboui/tunisia-climate-analysis.git
+cd tunisia-climate-analysis
+Rscript requirements.R
+Rscript run_all.R
+quarto render
+```

@@ -1,0 +1,58 @@
+---
+title: "Tunisia Climate Analysis"
+subtitle: "Comparing hourly weather-station data from Bizerte, Sousse and Kef, December 2025"
+author: "Mohamed Jarboui"
+---
+
+```{r setup}
+#| include: false
+library(tidyverse)
+library(here)
+library(knitr)
+
+climate <- readRDS(here("data", "processed", "02_cleaned_data.rds"))
+eda <- readRDS(here("data", "processed", "03_eda_results.rds"))
+quality <- read_csv(here("output", "tables", "data_quality.csv"), show_col_types = FALSE)
+
+cs <- eda$city_stats %>% column_to_rownames("city")
+var <- eda$temp_variability %>% column_to_rownames("city")
+hc <- eda$hour_counts %>% column_to_rownames("city")
+fmt_day <- function(x) format(x, "%d %B %Y")
+```
+
+## In short
+
+Three automatic weather stations from the Tunisia Open Data Portal, one inland and two on the coast, recorded hourly temperature, humidity, wind and solar radiation in December 2025. Over the `r nrow(climate) |> format(big.mark = ",")` station-hours, and comparing only the period all three stations share (`r fmt_day(eda$common_start)` to `r fmt_day(eda$common_end)`):
+
+- **Kef, inland in the northwestern highlands, is the coldest station:** `r cs["Kef", "avg_temp"]` °C on average against `r cs["Sousse", "avg_temp"]` °C in Sousse and `r cs["Bizerte", "avg_temp"]` °C in Bizerte. It is the only one that dropped below 5 °C (`r hc["Kef", "hours_below_5c"]` hours, minimum `r cs["Kef", "min_temp"]` °C).
+- **Kef also has the largest day-night swing:** `r var["Kef", "avg_daily_range"]` °C between daily minimum and maximum on average, against `r var["Sousse", "avg_daily_range"]` °C in Sousse. The sea keeps coastal temperatures steadier.
+- **Bizerte is the most humid:** `r cs["Bizerte", "avg_humidity"]` % relative humidity on average, above 80 % in `r hc["Bizerte", "pct_humid"]` % of its hours.
+- **Humidity moves opposite to temperature** at every station (correlation from `r max(eda$correlations$temp_humidity)` to `r min(eda$correlations$temp_humidity)`): it peaks around sunrise (06:00 to 08:00) and is lowest around 15:00, when temperatures peak.
+- **The Kef solar sensor is faulty.** It reports about 950 W/m² day and night, so its solar readings were excluded instead of making Kef look like the sunniest city.
+
+![](output/figures/08_overview.png)
+
+## Data
+
+```{r coverage}
+quality %>%
+  transmute(
+    Station = city,
+    From = format(first_reading, "%d %b %Y %H:%M"),
+    To = format(last_reading, "%d %b %Y %H:%M"),
+    Days = days_covered,
+    `Hourly records` = station_hours,
+    `Solar sensor` = if_else(solar_sensor_ok, "OK", "Faulty (excluded)")
+  ) %>%
+  kable()
+```
+
+Bizerte logs roughly every two hours, so it has fewer records over the same period. Sousse kept recording until early January; its extra weeks are used for its own time series but not in the city comparison.
+
+## Limitations
+
+- **About two to four weeks of winter data.** The results describe December 2025, not the climate of these cities. Seasonal patterns or long-term trends cannot be studied with this sample.
+- **Three stations, one per city.** Each station reflects its exact location (exposure, altitude, distance to the sea), not the whole city.
+- **Humidity readings cap at 100 %:** 73 % of Bizerte's night-time readings are exactly 100 %, so its humidity spread is compressed.
+
+See [Analysis](analysis.qmd) for the cleaning steps and detailed tables, and [Figures](visualizations.qmd) for every chart.
